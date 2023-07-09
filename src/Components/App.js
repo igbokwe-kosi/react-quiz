@@ -2,6 +2,7 @@ import Header from "./Header";
 import Main from "./Main";
 import Loader from "./Loader";
 import Error from "./Error";
+import Question from "./Question";
 import { useEffect, useReducer } from "react";
 import StartScreen from "./StartScreen";
 
@@ -10,6 +11,9 @@ const initialState = {
 
   // "loading" | "error" | "ready" | "active" | "finished"
   status: "loading",
+  index: 0,
+  answer: null,
+  points: 0,
 };
 
 function reducer(state, action) {
@@ -25,6 +29,21 @@ function reducer(state, action) {
         ...state,
         status: "error",
       };
+    case "start":
+      return {
+        ...state,
+        status: "active",
+      };
+    case "answer":
+      const question = state.questions.at(state.index);
+      return {
+        ...state,
+        answer: action.payload,
+        points:
+          action.payload === question.correctOption
+            ? state.points + question.points
+            : state.points,
+      };
 
     default:
       throw new Error(`Unhandled action type: ${action.type}`);
@@ -32,7 +51,10 @@ function reducer(state, action) {
 }
 
 function App() {
-  const [{ questions, status }, dispatch] = useReducer(reducer, initialState);
+  const [{ questions, status, index, answer }, dispatch] = useReducer(
+    reducer,
+    initialState
+  );
 
   const numQuestions = questions.length;
   useEffect(function () {
@@ -62,7 +84,17 @@ function App() {
 
         {status === "error" && <Error />}
 
-        {status === "ready" && <StartScreen numQuestions={numQuestions} />}
+        {status === "ready" && (
+          <StartScreen numQuestions={numQuestions} dispatch={dispatch} />
+        )}
+
+        {status === "active" && (
+          <Question
+            question={questions[index]}
+            dispatch={dispatch}
+            answer={answer}
+          />
+        )}
       </Main>
     </div>
   );
