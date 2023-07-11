@@ -3,6 +3,7 @@ function StartScreen({ numQuestions, dispatch }) {
     <div className="start">
       <h2>Welcome to the React Trivia!</h2>
       <h3>{numQuestions} questions to test your React knowledge.</h3>
+
       <button
         className="btn btn-ui"
         onClick={() =>
